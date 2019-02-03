@@ -1,0 +1,484 @@
+Name: Prosper Loan dataset analysis
+========================================================
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE)
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
+#load packages
+library(ggplot2)
+library(dplyr)
+```
+
+```{r echo=FALSE, Load_the_Data}
+# Load the Data
+
+loandata = read.csv('~/Downloads/prosperLoanData.csv')
+#Display 6 rows to review the data in general as a quick view then 
+#display the 81 vars in details in order to help writing 
+#a short introduction and perform EDA
+
+head(loandata)
+
+```
+
+
+This dataset contains 113,937 loans with 81 variables; EDA will be perofromed 
+for some variables as follows: Univariate Plots, Bivariate Plots, 
+and Multivariate Plots. 
+Prosper is a platform which is a good option for those who can’t get a loan 
+from a traditional bank and don’t want the high interest rates offered by 
+credit cards and payday loans. the process workflow based on the actors is:
+borrower: submit a loan application. 
+prosper: provide loans after doing checks with some orgnizations to make sure 
+the borrower meets several criteria. 
+
+
+# Univariate Plots Section
+
+
+```{r echo=FALSE,warning=FALSE, message=FALSE, Univariate99}
+#First, i will do Univariate anaylsis which performs for one variable 
+#as an exploration to understand the data patterns and its distrbuation
+#for each plot i will write a result and in the section below 
+#i will conclude them:
+
+#ploting LoanOriginalAmount for checking the loans amount
+ggplot(loandata,aes(x=LoanOriginalAmount))+
+geom_histogram(binwidth=1000)+
+scale_x_continuous(breaks=seq(0,36000,2000),lim=c(0,30000)) +  
+  theme(axis.text.x = element_text(angle=90, hjust=1))
+summary(loandata$LoanOriginalAmount)
+#as a result, from the histogram above the most loan amount is 4000 then 10000 
+#and 15000. so the amount peaks is between $4000 and $14000 
+```
+
+from the histogram above the most loan amount is $4000 then $10000 
+and $15000. so the amount peaks is between $4000 and $14000 
+
+```{r echo=FALSE,warning=FALSE, message=FALSE, Univariate2}
+#ploting BorrowerRate to check how much the borrower assured monthly payments
+ggplot(aes(BorrowerRate), data=loandata) + 
+geom_histogram()
+summary(loandata$BorrowerRate)
+ 
+ 
+```
+
+from th histogram above the  borrower rate is around 20% 
+and the range is between 0.1 and 0.3 (10% to 30%)
+
+
+```{r echo=FALSE,warning=FALSE, message=FALSE, Univariate3}
+#ploting ProsperScore to check the probability of a loan going bad
+ggplot(aes(ProsperScore),data=loandata)+
+geom_bar()
+summary(loandata$ProsperScore)
+#Borrowers proposer's scores are between 1.00 and 11.00 with median 6.00 
+```
+
+from the bar chart Borrowers proposer's scores are between 1.00 and 11.00 with median 6.00 
+
+```{r echo=FALSE,warning=FALSE, message=FALSE, Univariate}
+#ploting how many loans per each loanStatus
+#reorder loan status
+
+table(loandata$LoanStatus)
+loandata$LoanStatus<-ordered(loandata$LoanStatus,
+                             levels=c('Current','Completed', ' Chargedoff', 
+                                      'FinalPaymentInProgress', 'Defaulted',
+                                      'Cancelled',
+                                      'Past Due (1-15 days)',
+                                      'Past Due (16-30 days)',
+                                      'Past Due (31-60 days)',
+                                      'Past Due (61-90 days)',
+                                      'Past Due (91-120 days)',
+                                      'Past Due (>120 days)'))
+
+
+
+#ploting loanstatus
+ggplot(aes(LoanStatus),data=loandata)+geom_bar() +
+  theme(axis.text.x = element_text(angle=90, hjust=1))
+summary(loandata$LoanStatus)
+```
+
+from the bar chart, it is clear that most loan data is for current loans 
+then, completed loans and then chargedoff loans. we have some of cases 
+which are paid after the due date.
+
+```{r echo=FALSE,warning=FALSE, message=FALSE, Univariate4}
+#ploting EmploymentStatus for the borrowers to check what is the most employment
+#status for borrowers
+#reorder EmploymentStatus
+loandata$EmploymentStatus<-ordered(loandata$EmploymentStatus,levels=c('Employed',
+                                    'Full-time', 'Part-time', 'Self-employed',
+                                    'Retired', 'Not employed','Not available',
+                                    'Other','NA'))
+ggplot(aes(EmploymentStatus),data=loandata)+geom_bar() +
+  theme(axis.text.x = element_text(angle=90, hjust=1))
+  summary(loandata$EmploymentStatus)
+```
+
+from the bar chart above the most of borrowers employment status 
+is employed then full-time 
+
+```{r echo=FALSE,warning=FALSE, message=FALSE, Univariate5}
+#ploting StatedMonthlyIncome for borrowers to check for borrowers 
+  #theier Monthly Income
+ggplot(aes(StatedMonthlyIncome),data=loandata) +       
+geom_histogram(binwidth=500) + xlim(0,10000)
+summary(loandata$StatedMonthlyIncome)
+# as a result, from the histogram above borrowers monthly income range 
+#is between 25,000$ and 75,000$
+```
+
+from the histogram above borrowers monthly income range 
+is between 25,000$ and 75,000$
+
+# Univariate Analysis
+
+### What is the structure of your dataset?
+This dataset contains 113,937 loans with 81 variables. Prosper is a platform 
+which is a good option for those who can’t get a loan from a traditional bank 
+and don’t want the high interest rates offered by credit cards and payday loans. 
+the process workflow based on the actors is:
+#borrower: submit a loan application. 
+#prosper: provide loans after doing checks with some orgnizations to 
+make sure the borrower meets several criteria. 
+
+### What is/are the main feature(s) of interest in your dataset?
+The main features of interest in the dataset are BorrowerRate and ProsperScore. 
+from the invstigation above there is a relashionship between them 
+as the ProsperScore affect BorrowerRate
+
+### What other features in the dataset do you think will help support your \
+Other features: LoanStatus, EmploymentStatus, StatedMonthlyIncome, 
+and LoanOriginalAmount might affect BorrowRate.
+
+### Did you create any new variables from existing variables in the dataset?
+No
+
+### Of the features you investigated, were there any unusual distributions? \
+I reordered LoanStatus and EmploymentStatus as they have unordered data.
+
+
+
+
+# Bivariate Plots Section
+
+```{r echo=FALSE,warning=FALSE, message=FALSE, Bivariate_Plots}
+#exlporation for two variables (attributes). 
+#It explores the concept of relationship between two variables.
+
+
+#first, ploting two variables for the relationship between 
+#(ProsperScore,BorrowerRate)
+#we will check how much the borrower assured monthly payments vs. Prosper Score
+ggplot(aes(ProsperScore,BorrowerRate),data=loandata)+
+geom_jitter(alpha=0.01)+
+  scale_x_continuous(breaks=seq(0,12,1))
+cor.test(loandata$BorrowerRate,loandata$ProsperScore)
+```
+
+from the chart above we observe that when BorrowerRate decreases 
+ProsperScore increases.
+correlation coefficient is -0.65 
+BorrowerRate has strong relationship with ProsperScore.
+
+```{r echo=FALSE,warning=FALSE, message=FALSE, Bivariate_Plotss}
+#ploting relationship between BorrowerRate and StatedMonthlyIncome and
+#we will check how much the borrower assured monthly payments vs.  vs. the borrower Monthly Income
+ggplot(aes(x = StatedMonthlyIncome, y = BorrowerRate), data=loandata) +
+  geom_point(alpha=1/100) +
+  geom_smooth(colour = "red", show.legend = NA)
+cor.test(loandata$BorrowerRate,loandata$StatedMonthlyIncome)
+```
+
+from the chart above we observe tha when BorrowerRate decreases 
+StatedMonthlyIncome increases.
+correlation coefficient is -0.33, so a BorrowerRate moderate relationship.
+
+
+```{r echo=FALSE,warning=FALSE, message=FALSE, Bivariate_Plotsss}
+#ploting LoanStatus and BorrowerRate 
+#we will check how much the borrower assured monthly payments vs each loan status
+ggplot(aes(LoanStatus,BorrowerRate),data=loandata)+
+  geom_boxplot()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+from the chart above we observe the mean of BorrowerRate for current 
+and completed are less than late payemnet in gereneral (i.e. pastdue), 
+defaulted and chargedoff 
+
+```{r echo=FALSE,warning=FALSE, message=FALSE, Bivariate_Plotss1}
+#ploting EmploymentStatus, and BorrowerRate
+#we will check how much the borrower assured monthly payment vs each borrower Employment Status
+ggplot(aes(EmploymentStatus,BorrowerRate),data=loandata)+
+  geom_boxplot()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+from the chart above we obeserve that the mean of BorrowerRate for 
+not employed borrower is higher than others.
+
+```{r echo=FALSE,warning=FALSE, message=FALSE, Bivariate_Plotss2}
+#other interesting features relationship
+#ploting LoanStatus, and StatedMonthlyIncome
+#we will check for each loan status how much borrower assured monthly payment
+ggplot(aes(LoanStatus, StatedMonthlyIncome),data=loandata)+
+  geom_boxplot()+
+  ylim(0, quantile(loandata$StatedMonthlyIncome,0.99))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+from the chart above we observe that current loan status is the highest 
+StatedMonthlyIncome 
+and late paymnet in gereneral(i.e. pastdue)loan has lower StatedMonthlyIncome.
+
+```{r echo=FALSE,warning=FALSE, message=FALSE, Bivariate_Plotss3}
+#ploting ProsperScore, BorrowerRate and LoanStatus per each status
+#Finding relationship between categorical and continuous variables
+#we will check prosper score and how much borrower assured monthly payment 
+#for each loan status
+ ggplot(aes(ProsperScore, BorrowerRate), 
+        data=subset(loandata,loandata$LoanStatus!='Completed'))+
+  geom_jitter(alpha=0.01)
+``` 
+
+the chart above presents that prosper score and how much borrower 
+assured monthly payment for all loan status exculds Completed status
+
+```{r echo=FALSE,warning=FALSE, message=FALSE, Bivariate_Plotss33}
+  ggplot(aes(ProsperScore, BorrowerRate), 
+         data=subset(loandata,loandata$LoanStatus!='Current'))+
+  geom_jitter(alpha=0.01)
+```
+  
+the chart above presents that prosper score and how much borrower 
+assured monthly payment for all loan status exculds Current status
+
+
+```{r echo=FALSE,warning=FALSE, message=FALSE, Bivariate_Plotss3333}
+  ggplot(aes(ProsperScore, BorrowerRate), 
+         data=subset(loandata,loandata$LoanStatus!='PastDue'))+
+  geom_jitter(alpha=0.01)
+```
+
+the chart above presents that prosper score and how much borrower 
+assured monthly payment for all loan status exculds PastDue status
+
+```{r echo=FALSE,warning=FALSE, message=FALSE, Bivariate_Plotss333333}
+
+    ggplot(aes(ProsperScore, BorrowerRate), 
+           data=subset(loandata,loandata$LoanStatus!='Chargedoff'))+
+  geom_jitter(alpha=0.01)
+```
+
+the chart above presents that prosper score and how much borrower 
+assured monthly payment for all loan status exculds Chargedoff status
+
+```{r echo=FALSE,warning=FALSE, message=FALSE, Bivariate_Plotss34333}
+    ggplot(aes(ProsperScore, BorrowerRate), 
+           data=subset(loandata,loandata$LoanStatus!='Defaulted'))+
+  geom_jitter(alpha=0.01)
+```
+
+the chart above presents that prosper score and how much borrower 
+assured monthly payment for all loan status exculds Defaulted status
+
+
+
+
+# Bivariate Analysis
+
+
+### Talk about some of the relationships you observed in this part of the \
+we observe the following:
+
+the mean of BorrowerRate decreases while ProsperScore increases. 
+correlation coefficient is -0.65 
+so BorrowerRate has strong relationship with ProsperScore. 
+
+the mean of BorrowerRate decreases while LoanOriginalAmount increases. 
+correlation coefficient is -0.33, so BorrowerRate has moderate relationship
+with LoanOriginalAmount
+
+the mean of BorrowerRate decreases while StatedMonthlyIncome increases. 
+correlation coefficient is -0.088, so BorrowerRate has weak relationship.
+with StatedMonthlyIncome
+
+the mean of BorrowerRate for current and completed loan status are less than 
+late payment in gereneral (i.e. pastdue), defaulted and chargedoff. 
+the mean of BorrowerRate for not employed borrower is higher than others.
+
+### Did you observe any interesting relationships between the other features?
+relationships between LoanStatus, and StatedMonthlyIncome so:
+the current loan status is the highest StatedMonthlyIncome and late payemnet 
+in gereneral (i.e. pastdue) loan has lower StatedMonthlyIncome.
+
+### What was the strongest relationship you found?
+the strongest relationship is between BorrowerRate and ProsperScore 
+since when the mean of BorrowerRate decreases the ProsperScore increases. 
+as well,between BorrowerRate and LoanOriginalAmount moderate relationship. 
+so, BorrowerRate will be affaected by ProsperScore and LoanOriginalAmount. 
+
+
+
+# Multivariate Plots Section
+
+
+
+
+```{r echo=FALSE,warning=FALSE, message=FALSE, Multivariatee}
+#relashionship between three variables ProsperScore, BorrowerRate and LoanStatus 
+ggplot(aes(ProsperScore, BorrowerRate),
+       data=loandata) + 
+  geom_jitter(aes(color=LoanStatus),alpha=0.01, show.legend = FALSE)+ 
+  facet_wrap(~LoanStatus)+
+   ggtitle('Facet Wrap by LoanStatus')
+ 
+```
+
+from the chart above there are a lot of current and completed loans 
+with lower BorrowerRate and higher ProsperScore
+
+```{r echo=FALSE,warning=FALSE, message=FALSE, Multivariatee1}
+ggplot(aes(x=ProsperScore, y=BorrowerRate),
+               data = subset(loandata,!is.na(LoanStatus))) +
+    geom_point(stat="summary",aes(color=LoanStatus),show.legend = FALSE,
+             fun.y = mean, size = 1) +
+    ylab('Mean BorrowerRate') +
+    facet_wrap(~LoanStatus)+
+  geom_smooth(method=lm)+
+    ggtitle('Mean ProsperScore vs BorrowerRate by LoanStatus')+
+    theme(plot.title=element_text(hjust=0.5))
+
+```  
+
+
+from the chart above we confirm that the mean of BorrowerRate decreases 
+while ProsperScore increases for loan status such as current and completed.
+
+
+
+
+```{r echo=FALSE,warning=FALSE, message=FALSE, Multivariatee2}
+ggplot(aes(x=ProsperScore, y=BorrowerRate),
+               data = subset(loandata,!is.na(EmploymentStatus))) +
+    geom_point(stat="summary",aes(color=EmploymentStatus),show.legend = FALSE,
+             fun.y = mean, size = 1) +
+    ylab('Mean BorrowerRate') +
+   geom_smooth(method=lm)+
+    facet_wrap(~EmploymentStatus)+
+    ggtitle('Mean ProsperScore vs BorrowerRate by EmploymentStatus')+
+    theme(axis.text.x = element_text(angle = 0, hjust = 1))
+```  
+
+
+from the chart above we confirm that the mean of BorrowerRate decreases 
+while ProsperScore increases for employment status.
+
+
+# Multivariate Analysis
+
+  
+### Talk about some of the relationships you observed in this part of the \
+with lower BorrowerRate we will have higher ProsperScore and 
+this is confirmed with some of LoanStatus such as completed and current.
+
+
+### Were there any interesting or surprising interactions between features?
+interesting relationship between BorrowerRate,ProsperScore and LoanStatus were confirmed above.
+
+------
+
+# Final Plots and Summary
+
+
+### Plot One
+```{r echo=FALSE, warning=FALSE, message=FALSE, Plot_One}
+#ploting BorrowerRate 
+#ploting BorrowerRate to check how much the borrower assured monthly payments
+ggplot(aes(BorrowerRate), data=loandata) + 
+geom_histogram(color='black')+
+    ggtitle('BorrowerRate')
+
+```
+
+### Description One
+The plot above describes BorrowRate for NumberOfLoans from ~ .05 to ~ .35 
+the peak is at ~ 0.15.
+
+### Plot Two
+```{r echo=FALSE, warning=FALSE, message=FALSE,  Plot_Two}
+#ploting ProsperScore, and BorrowerRate to check how much the borrower assured monthly payments vs. Prosper Score
+ggplot(aes(ProsperScore,BorrowerRate),data=loandata)+
+geom_jitter(alpha=0.01)+
+   ggtitle('BorrowerRate by ProsperScore')+
+  scale_x_continuous(breaks=seq(0,12,1))
+cor.test(loandata$BorrowerRate,loandata$ProsperScore)
+```
+
+### Description Two
+when BorrowerRate decreases ProsperScore increases. 
+correlation coefficient is -0.65 so BorrowerRate has strong 
+relationship with ProsperScore. 
+
+### Plot Three
+```{r echo=FALSE,warning=FALSE, message=FALSE, Plot_Three}
+#relashionship between three variables 
+
+ggplot(aes(x=ProsperScore, y=BorrowerRate),
+               data = subset(loandata,!is.na(LoanStatus))) +
+    geom_point(stat="summary",aes(color=LoanStatus),show.legend = FALSE,
+             fun.y = mean, size = 1) +
+    ylab('Mean BorrowerRate') +
+    facet_wrap(~LoanStatus)+
+    geom_smooth(method=lm)+
+    ggtitle('Mean ProsperScore vs BorrowerRate by LoanStatus')+
+    theme(plot.title=element_text(hjust=0.5))
+
+```  
+
+
+  
+
+### Description Three
+
+the mean of BorrowerRate decreases while ProsperScore increases for 
+loan status such as current and completed.
+------
+
+#Reflection
+This dataset contains 113,937 loans with 81 variables; EDA has been perofromed 
+for some variables such as BorrowerRate, ProsperScore, , LoanOriginalAmount, 
+LoanStatus, StatedMonthlyIncome and EmploymentStatus.
+1st, Univariate Plots for one variable.
+then, Bivariate Plots for two variables.
+Finally, Multivariate Plots for categorical and continuous variables
+I foucsed on BorrowerRate and its relationship with other variables.
+we found the following:
+the mean of BorrowerRate decreases while ProsperScore increases. 
+BorrowerRate has strong relationship with ProsperScore. 
+
+the mean of BorrowerRate decreases while LoanOriginalAmount increases. 
+BorrowerRate has moderate relationship with LoanOriginalAmount
+
+the mean of BorrowerRate decreases while StatedMonthlyIncome increases. 
+BorrowerRate has weak relationship with StatedMonthlyIncome
+
+the mean of BorrowerRate for current and completed loan status are less than 
+late payment in gereneral (i.e. pastdue), defaulted and chargedoff. 
+the mean of BorrowerRate for not employed borrower is higher than others.
+
+with lower BorrowerRate we will have higher ProsperScore and 
+this is confirmed with some of LoanStatus such as completed and 
+current.
+
+for future work, I may explore more variables periodically to improve the process workflow
+
+
+
